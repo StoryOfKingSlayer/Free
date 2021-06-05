@@ -6,8 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password
 
 
-# Create your models here.
-class CostumUser(AbstractUser):
+class CustomUser(AbstractUser):
     role = models.CharField("Роль", max_length=100)
 
 
@@ -26,7 +25,7 @@ class Project(models.Model):
 class CheckList(models.Model):
     stepNumber = models.CharField("Номер", max_length=100)
     project = models.ForeignKey(Project, verbose_name="Проект", on_delete=models.SET_NULL, null=True)
-    user = models.ForeignKey(CostumUser, verbose_name="Пользователь", on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(CustomUser, verbose_name="Пользователь", on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f'{self.id}_{self.stepNumber}'
@@ -48,16 +47,3 @@ class Task(models.Model):
         verbose_name = "Задача"
         verbose_name_plural = "Задачи"
 
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     birth_date = models.DateField(null=True, blank=True)
-#     role = models.CharField("Роль", max_length=100)
-#
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
-#
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()

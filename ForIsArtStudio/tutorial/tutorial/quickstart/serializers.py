@@ -1,15 +1,12 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from rest_framework import serializers
-from .models import Task, CheckList, Project
+from .models import Task, CheckList, Project, CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups', 'password']
-
-
-
+        model = CustomUser
+        fields = ['url', 'username', 'email', 'role']
 
 
 class GroupSerializer(serializers.ModelSerializer):
