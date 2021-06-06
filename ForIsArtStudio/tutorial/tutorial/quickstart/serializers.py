@@ -48,7 +48,9 @@ class GroupSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = '__all__'
+        read_only_fields = ['Tasks']
+        fields = [f.name for f in Task._meta.fields] + \
+                 ['Tasks']
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -4,11 +4,25 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Permission
 
 
 # Create your models here.
 class CostumUser(AbstractUser):
     role = models.CharField("Роль", max_length=100)
+
+    def save(self, *args, **kwargs):
+        if self.role == "Executor":
+            permissions = [
+                Permission.objects.get(name='Can view чек-листы'),
+                Permission.objects.get(name='Can view competition'),
+
+            ]
+        for permission in permissions:
+            self.user.user_permissions.add(permission)
+        super(Referee, self).save(*args, **kwargs)
+
+
 
 
 class Project(models.Model):
@@ -21,6 +35,7 @@ class Project(models.Model):
     class Meta:
         verbose_name = "Проект"
         verbose_name_plural = "Проекты"
+
 
 
 class CheckList(models.Model):
@@ -39,7 +54,7 @@ class CheckList(models.Model):
 class Task(models.Model):
     taskName = models.CharField("Задача", max_length=100)
     taskStatus = models.BooleanField(default=False)
-    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE)
+    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE, related_name="tasks_list")
 
     def __str__(self):
         return f'{self.id}'
