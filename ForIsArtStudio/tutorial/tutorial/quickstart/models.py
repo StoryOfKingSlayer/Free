@@ -11,16 +11,16 @@ from django.contrib.auth.models import Permission
 class CostumUser(AbstractUser):
     role = models.CharField("Роль", max_length=100)
 
-    def save(self, *args, **kwargs):
-        if self.role == "Executor":
-            permissions = [
-                Permission.objects.get(name='Can view чек-листы'),
-                Permission.objects.get(name='Can view competition'),
-
-            ]
-        for permission in permissions:
-            self.user.user_permissions.add(permission)
-        super(Referee, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.role == "Executor":
+    #         permissions = [
+    #             Permission.objects.get(name='Can view чек-листы'),
+    #             Permission.objects.get(name='Can view competition'),
+    #
+    #         ]
+    #     for permission in permissions:
+    #         self.user.user_permissions.add(permission)
+    #     super(Referee, self).save(*args, **kwargs)
 
 
 
@@ -54,7 +54,7 @@ class CheckList(models.Model):
 class Task(models.Model):
     taskName = models.CharField("Задача", max_length=100)
     taskStatus = models.BooleanField(default=False)
-    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE, related_name="tasks_list")
+    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE, related_name="task_list")
 
     def __str__(self):
         return f'{self.id}'

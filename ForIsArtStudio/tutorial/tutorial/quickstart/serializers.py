@@ -48,9 +48,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        read_only_fields = ['Tasks']
-        fields = [f.name for f in Task._meta.fields] + \
-                 ['Tasks']
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -62,7 +60,26 @@ class ProjectSerializer(serializers.ModelSerializer):
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList
-        fields = '__all__'
+        fields = [f.name for f in CheckList._meta.fields] + \
+                 ['task_list']
+        read_only_fields = ['task_list']
+
+    def init(self, *args, **kwargs):
+        super(CheckListSerializer, self).init(*args, **kwargs)
+        request = self.context.get('request')
+        if request and request.method in ('POST', 'PATCH'):
+            self.Meta.depth = 0
+        else:
+            self.Meta.depth = 1
+
+    # def to_representation(self, instance):
+    #     request = self.context.get('request')
+    #     response = super().to_representation(instance)
+    #     if request and request.method in ('POST', 'PATCH'):
+    #         return response
+    #     else:
+    #         response.get('user').pop('password', None)
+    #         return response
 
 # class ProfileSerializer(serializers.ModelSerializer):
 #     class Meta:
