@@ -8,29 +8,37 @@ from .serializers import UserSerializer, GroupSerializer, TaskSerializer, Projec
 from .models import Task, Project, CheckList, CostumUser
 
 
+class ShowDependViewSet(viewsets.ModelViewSet):
+    queryset = CheckList.objects.all()
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    serializer_class = CheckListSerializer
 
-# class ProfileViewSet(viewsets.ModelViewSet):
-#     queryset = Profile.objects.all()
-#     serializer_class = ProfileSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        if CostumUser.objects.filter(role="Meneger"):
+            queriset = self.queryset
+        elif CostumUser.objects.filter(role="Executor"):
+            queriset = CheckList.objects.all().filter(user=self.request.user)
+
+        return queriset
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions
+                          ]
 
 
 class CheckListViewSet(viewsets.ModelViewSet):
     queryset = CheckList.objects.all().filter()
     serializer_class = CheckListSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -39,7 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = CostumUser.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
 
 class GroupViewSet(viewsets.ModelViewSet):

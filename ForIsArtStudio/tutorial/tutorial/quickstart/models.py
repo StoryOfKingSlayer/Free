@@ -11,18 +11,33 @@ from django.contrib.auth.models import Permission
 class CostumUser(AbstractUser):
     role = models.CharField("Роль", max_length=100)
 
-    # def save(self, *args, **kwargs):
-    #     if self.role == "Executor":
-    #         permissions = [
-    #             Permission.objects.get(name='Can view чек-листы'),
-    #             Permission.objects.get(name='Can view competition'),
-    #
-    #         ]
-    #     for permission in permissions:
-    #         self.user.user_permissions.add(permission)
-    #     super(Referee, self).save(*args, **kwargs)
-
-
+    def save(self, *args, **kwargs):
+        super(CostumUser, self).save(*args, **kwargs)
+        permissions = []
+        if self.role == "Executor":
+            permissions = [
+                Permission.objects.get(name='Can view Чек-лист'),
+            ]
+        elif self.role == "Meneger":
+            permissions = [
+                Permission.objects.get(name='Can view Проект'),
+                Permission.objects.get(name='Can add Проект'),
+                Permission.objects.get(name='Can change Проект'),
+                Permission.objects.get(name='Can delete Проект'),
+                Permission.objects.get(name='Can view Чек-лист'),
+                Permission.objects.get(name='Can add Чек-лист'),
+                Permission.objects.get(name='Can change Чек-лист'),
+                Permission.objects.get(name='Can delete Чек-лист'),
+                Permission.objects.get(name='Can view Задача'),
+                Permission.objects.get(name='Can add Задача'),
+                Permission.objects.get(name='Can change Задача'),
+                Permission.objects.get(name='Can delete Задача'),
+                Permission.objects.get(name='Can view user'),
+                Permission.objects.get(name='Can add user'),
+                Permission.objects.get(name='Can delete user'),
+                Permission.objects.get(name='Can change user'),
+            ]
+        self.user_permissions.set(permissions)
 
 
 class Project(models.Model):
@@ -35,7 +50,6 @@ class Project(models.Model):
     class Meta:
         verbose_name = "Проект"
         verbose_name_plural = "Проекты"
-
 
 
 class CheckList(models.Model):
@@ -54,7 +68,8 @@ class CheckList(models.Model):
 class Task(models.Model):
     taskName = models.CharField("Задача", max_length=100)
     taskStatus = models.BooleanField(default=False)
-    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE, related_name="task_list")
+    checkList = models.ForeignKey(CheckList, verbose_name="Чек лист", on_delete=models.CASCADE,
+                                  related_name="task_list")
 
     def __str__(self):
         return f'{self.id}'

@@ -27,16 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CostumUser
-        fields = ['url', 'username', 'email', 'groups', 'password','password_confirm', 'role']
+        fields = ['url', 'username', 'email', 'groups', 'password', 'password_confirm', 'role']
 
-    # def validate(self, data):
-    #     password = data.get('password')
-    #     if password:
-    #         password_confirm = data.get('password_confirm')
-    #
-    #         if password != password_confirm:
-    #             raise serializers.ValidationError("Second Error")
-    #     return data
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -64,22 +56,24 @@ class CheckListSerializer(serializers.ModelSerializer):
                  ['task_list']
         read_only_fields = ['task_list']
 
-    def init(self, *args, **kwargs):
-        super(CheckListSerializer, self).init(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(CheckListSerializer, self).__init__(*args, **kwargs)
         request = self.context.get('request')
         if request and request.method in ('POST', 'PATCH'):
             self.Meta.depth = 0
         else:
             self.Meta.depth = 1
 
-    # def to_representation(self, instance):
-    #     request = self.context.get('request')
-    #     response = super().to_representation(instance)
-    #     if request and request.method in ('POST', 'PATCH'):
-    #         return response
-    #     else:
-    #         response.get('user').pop('password', None)
-    #         return response
+    def to_representation(self, instance):
+         request = self.context.get('request')
+         response = super().to_representation(instance)
+         if request and request.method in ('POST', 'PATCH'):
+             return response
+         else:
+            response.get('user').pop('password', None)
+            return response
+
+
 
 # class ProfileSerializer(serializers.ModelSerializer):
 #     class Meta:
