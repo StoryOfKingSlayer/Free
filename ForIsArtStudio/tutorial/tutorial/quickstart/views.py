@@ -6,20 +6,39 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from .serializers import UserSerializer, GroupSerializer, TaskSerializer, ProjectSerializer, CheckListSerializer
 from .models import Task, Project, CheckList, CostumUser
+from .permission_classes import IsAdminOrManager
 
 
-class ShowDependViewSet(viewsets.ModelViewSet):
-    queryset = CheckList.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
-    serializer_class = CheckListSerializer
 
-    def get_queryset(self):
-        if CostumUser.objects.filter(role="Meneger"):
-            queriset = self.queryset
-        elif CostumUser.objects.filter(role="Executor"):
-            queriset = CheckList.objects.all().filter(user=self.request.user)
 
-        return queriset
+
+# class ShowProjectForMA(viewsets.ModelViewSet):
+#     permission_classes = [
+#         permissions.IsAuthenticated,
+#         permissions.DjangoModelPermissions,
+#     ]
+#     serializer_class = ProjectSerializer
+#
+#     def get_queryset(self):
+#         queryset = Project.objects.all()
+#         user = self.request.user
+#         if user.role == "Executor":
+#             queryset = Project.objects.filter(id__in=CheckList.objects.values("project_id").filter(user_id__in=CostumUser.objects.filter(id=self.request.user.id)))
+#         return queryset
+
+
+# class ShowDependViewSet(viewsets.ModelViewSet):
+#     queryset = CheckList.objects.all()
+#     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+#     serializer_class = CheckListSerializer
+#
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.role == "Meneger" or user.role == "Admin":
+#             queriset = self.queryset
+#         elif user.role == "Executor":
+#             queriset = CheckList.objects.filter(user=self.request.user)
+#         return queriset
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -29,16 +48,32 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    permission_classes = [
+        permissions.IsAuthenticated,
+        permissions.DjangoModelPermissions,
+    ]
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions
-                          ]
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        user = self.request.user
+        if user.role == "Executor":
+            queryset = Project.objects.filter(id__in=CheckList.objects.values("project_id").filter(
+                user_id__in=CostumUser.objects.filter(id=self.request.user.id)))
+        return queryset
 
 
 class CheckListViewSet(viewsets.ModelViewSet):
-    queryset = CheckList.objects.all().filter()
-    serializer_class = CheckListSerializer
+    queryset = CheckList.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    serializer_class = CheckListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "Meneger" or user.role == "Admin":
+            queriset = self.queryset
+        elif user.role == "Executor":
+            queriset = CheckList.objects.filter(user=self.request.user)
+        return queriset
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -48,6 +83,12 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = CostumUser.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+
+    def get_queryset(self):
+        user = self.request.user
+        if (user.role == "Executor"):
+            queryset = CostumUser.objects.filter(id=self.request.user.id)
+        return queryset
 
 
 class GroupViewSet(viewsets.ModelViewSet):

@@ -11,10 +11,11 @@ router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'tasks', views.TaskViewSet)
-router.register(r'projects', views.ProjectViewSet)
+router.register(r'projects', views.ProjectViewSet,basename=views.ProjectViewSet)
 router.register(r'check-lists', views.CheckListViewSet)
-router.register(r'mq', views.ShowDependViewSet, basename=views.CheckListViewSet)  # For Den
-
+# router.register(r'mq', views.ShowDependViewSet, basename=views.CheckListViewSet)
+# router.register(r'project', views.ShowProjectForMA, basename=views.ProjectViewSet)
+# router.register(r'check-list', views.ShowCheckListForMA, basename=views.UserViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
