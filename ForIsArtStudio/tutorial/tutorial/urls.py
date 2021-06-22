@@ -8,9 +8,9 @@ from rest_framework_simplejwt.views import (
 )
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'users', views.UserViewSet, basename=views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'tasks', views.TaskViewSet)
+router.register(r'tasks', views.TaskViewSet,basename=views.TaskViewSet)
 router.register(r'projects', views.ProjectViewSet,basename=views.ProjectViewSet)
 router.register(r'check-lists', views.CheckListViewSet)
 # router.register(r'mq', views.ShowDependViewSet, basename=views.CheckListViewSet)

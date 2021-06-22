@@ -7,9 +7,7 @@ from rest_framework import permissions
 from .serializers import UserSerializer, GroupSerializer, TaskSerializer, ProjectSerializer, CheckListSerializer
 from .models import Task, Project, CheckList, CostumUser
 from .permission_classes import IsAdminOrManager
-
-
-
+from django.http import HttpResponse
 
 
 # class ShowProjectForMA(viewsets.ModelViewSet):
@@ -42,17 +40,27 @@ from .permission_classes import IsAdminOrManager
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
+    pagination_class = None
+
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
+    def get_queryset(self):
+        queryset = Task.objects.all()
+        user = self.request.user
+        if user.role == "Executor":
+            queryset = Task.objects.filter(checkList__in=CheckList.objects.values("id"))
+        return queryset
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     permission_classes = [
         permissions.IsAuthenticated,
         permissions.DjangoModelPermissions,
     ]
     serializer_class = ProjectSerializer
+
     def get_queryset(self):
         queryset = Project.objects.all()
         user = self.request.user
@@ -63,6 +71,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class CheckListViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = CheckList.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     serializer_class = CheckListSerializer
@@ -70,21 +79,22 @@ class CheckListViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.role == "Meneger" or user.role == "Admin":
-            queriset = self.queryset
+                queriset = CheckList.objects.all()
         elif user.role == "Executor":
             queriset = CheckList.objects.filter(user=self.request.user)
         return queriset
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
     queryset = CostumUser.objects.all().order_by('-date_joined')
+    pagination_class = None
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
     def get_queryset(self):
+        queryset = CostumUser.objects.all().order_by('-date_joined')
         user = self.request.user
         if (user.role == "Executor"):
             queryset = CostumUser.objects.filter(id=self.request.user.id)
