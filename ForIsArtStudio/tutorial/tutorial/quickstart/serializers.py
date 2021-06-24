@@ -37,18 +37,18 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ['url', 'name']
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
 
 
-class CheckListSerializer(serializers.ModelSerializer):
+class CheckListSerializer(WritableNestedModelSerializer):
     task_list = TaskSerializer(many=True, read_only=True)
-    ch_user = UserSerializer(many=True, read_only=True)
+
     class Meta:
         model = CheckList
-        fields = ["id", "stepNumber", "project", "user", "task_list", "ch_user"]
+        fields = ["id", "stepNumber", "project", "user", "task_list"]
         #     [f.name for f in CheckList._meta.fields] + \
         #          ['task_list']
         # read_only_fields = ['task_list']
@@ -72,11 +72,12 @@ class CheckListSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(WritableNestedModelSerializer):
-    check_lists = CheckListSerializer(many=True, read_only=False)
+    check_lists = CheckListSerializer(many=True, read_only=True)
 
     class Meta:
         model= Project
         fields = ["id", "projectName", "description", "check_lists"]
+        depth = 1
 
 
 

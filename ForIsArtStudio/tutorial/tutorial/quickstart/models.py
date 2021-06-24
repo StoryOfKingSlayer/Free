@@ -57,6 +57,7 @@ class CheckList(models.Model):
     stepNumber = models.CharField("Номер", max_length=100)
     project = models.ForeignKey(Project, related_name="check_lists", on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(CostumUser, related_name="ch_user", on_delete=models.SET_NULL, null=True)
+    CheckListStatus = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.id}_{self.stepNumber}'
